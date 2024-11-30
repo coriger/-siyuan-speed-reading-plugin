@@ -130,6 +130,8 @@ export default class PluginSample extends Plugin {
                 // 找data-type="NodeParagraph"的第二个元素
                 element.querySelectorAll("[data-type='NodeParagraph']")[1].style.color = ''
             });
+            // 强刷页面ctrl+f5
+            // window.location.reload();
         }else if(speedReadMode === "1"){   // 单篇速读
             detail.protyle.element.style.color = 'transparent'
             detail.protyle.element.querySelectorAll("[data-type='mark']").forEach((element: HTMLElement) => {
@@ -140,6 +142,60 @@ export default class PluginSample extends Plugin {
             detail.protyle.element.querySelectorAll("[data-type='NodeSuperBlock']").forEach((element: HTMLElement) => {
                 // 找data-type="NodeParagraph"的第二个元素
                 element.querySelectorAll("[data-type='NodeParagraph']")[1].style.color = 'transparent'
+            });
+        }else if(speedReadMode === "3"){ // 隐藏未标注文字，保留author、总结、标注  适用于知乎页
+            // 遍历文档所有data-type="NodeSuperBlock"的元素
+            detail.protyle.element.querySelectorAll("div").forEach((element: HTMLElement) => {
+                // 如果是data-type=NodeHeading  
+                if (element.getAttribute("data-type") === "NodeHeading") {
+                    // 判断当前是否有标记
+                    if(!element.firstChild.textContent.includes("✅")){
+                        // 这一轮直接隐藏掉
+                        element.style.display = "none";
+                    }
+                }
+
+                if (element.getAttribute("data-type") === "NodeParagraph" && element.style.color) {
+                    // 这个是总结，需要保留
+                }else if (element.getAttribute("data-type") === "NodeParagraph") {
+                    // 判断当前子元素是否有mark
+                    if(!element.querySelector("[data-type='mark']")){
+                        // 这一轮直接隐藏掉
+                        element.style.display = "none";
+                    } else {
+                        const marks = element.querySelectorAll('span[data-type="mark"]');
+                        const result = Array.from(marks).map(mark => mark.outerHTML).join('  ');
+                        element.innerHTML = result;
+                    }
+                }
+
+
+                // NodeListItem
+                if ((element.getAttribute("data-type") === "NodeListItem" || element.getAttribute("data-type") === "NodeBlockquote")) {
+                    // 再找里面的NodeParagraph
+                    element.querySelectorAll("[data-type='NodeParagraph']").forEach((el: HTMLElement) => {
+                        // 判断当前子元素是否有mark
+                        if(!el.querySelector("[data-type='mark']")){
+                            // 这一轮直接隐藏掉
+                            el.style.display = "none";
+                            // 把父元素也隐藏
+                            element.style.display = "none";
+                        }else{
+                            const marks = el.querySelectorAll('span[data-type="mark"]');
+                            const result = Array.from(marks).map(mark => mark.outerHTML).join('  ');
+                            el.innerHTML = result;
+                        }
+                    })
+                }
+
+                // NodeThematicBreak全部隐藏
+                if (element.getAttribute("data-type") === "NodeThematicBreak") {
+                    element.style.display = "none";
+                }
+
+                // 在屏幕上绘制一个圆形
+
+
             });
         }
     }
