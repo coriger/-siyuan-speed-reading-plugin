@@ -42,17 +42,25 @@ export default class PluginSample extends Plugin {
         
                 // 单篇速读模式
                 menu.addItem({
-                    label: "全篇速读",
+                    label: "单篇速读",
                     click: () => {
                         document.querySelector("#speedReadMode").setAttribute('data-value', '1');
                     }
                 });
         
-                // 双排速读模式
+                // 译注版双排速读模式
                 menu.addItem({
-                    label: "双排速读",
+                    label: "译注双排速读",
                     click: () => {
                         document.querySelector("#speedReadMode").setAttribute('data-value', '2');
+                    }
+                });
+
+                // 知乎速读模式
+                menu.addItem({
+                    label: "知乎速读",
+                    click: () => {
+                        document.querySelector("#speedReadMode").setAttribute('data-value', '3');
                     }
                 });
 
@@ -65,6 +73,45 @@ export default class PluginSample extends Plugin {
 
             }
         });
+
+
+        // 定义工具栏选项
+        this.protyleOptions = {
+            toolbar: ["block-ref",
+                "a",
+                "|",
+                "text",
+                "strong",
+                "em",
+                "u",
+                "s",
+                "mark",
+                "sup",
+                "sub",
+                "clear",
+                "|",
+                "code",
+                "kbd",
+                "tag",
+                "inline-math",
+                "inline-memo",
+                "|",
+                {
+                    name: "insert-smail-emoji",
+                    icon: "iconInfo",
+                    tipPosition: "n",
+                    tip: this.i18n.insertComment,
+                    click(protyle: Protyle) {
+                        var targetText = "✅" + protyle.protyle.toolbar.range.startContainer.parentNode.textContent
+                        // 清空之前的内容
+                        protyle.protyle.toolbar.range.startContainer.parentNode.textContent = "";
+                        // 重新插入
+                        protyle.insert(targetText)
+                        // 在下一行继续插入
+                        protyle.insert('{: style="color: var(--b3-card-error-color);background-color: var(--b3-card-error-background);"}',true)
+                    }
+                }],
+        };
 
         this.eventBus.on("switch-protyle", this.switchDoc);
         // 监听选中编辑器
